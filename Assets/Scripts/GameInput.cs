@@ -4,7 +4,9 @@ using UnityEngine;
 public class GameInput : MonoBehaviour
 {
 
+    // Event to notify when the player interacts with something
     public event EventHandler OnInteractAction;
+    // We inject the player input actions
     private PlayerInputActions playerInputActions;
 
     private void Awake()

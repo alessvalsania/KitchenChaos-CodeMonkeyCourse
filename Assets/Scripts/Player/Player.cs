@@ -1,7 +1,34 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+
+    // Applying the Singleton pattern to the Player class
+    public static Player Instance { get; private set; }
+    // When use awake? and when use start?
+    // Awake it's called in the initialization of the actual object
+    // Start it's called for any other external object that is going to use this object
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogWarning("There are multiple instances of Player");
+        }
+    }
+
+    // Event to notify when the selected counter has changed
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    // Following the standards of C# we create a class for the args of the event
+    public class OnSelectedCounterChangedEventArgs : EventArgs
+    {
+        public ClearCounter selectedCounter;
+    }
+
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float rotateSpeed = 10f;
     [SerializeField] private GameInput gameInput;
@@ -63,22 +90,33 @@ public class Player : MonoBehaviour
             if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
             {
                 // Has ClearCounter
-                if (clearCounter != selectedCounter)
-                {
-                    selectedCounter = clearCounter;
-                }
+                SetSelectedCounter(clearCounter);
+
             }
             else
             {
                 // Doesn't have ClearCounter
-                selectedCounter = null;
+                SetSelectedCounter(null);
             }
 
         }
         else
         {
             // Doesn't hit anything
-            selectedCounter = null;
+            SetSelectedCounter(null);
+        }
+
+    }
+
+    private void SetSelectedCounter(ClearCounter newSelectedCounter)
+    {
+        // We are calling to all the subscribers that the selected Counter has changed
+        // and also telling them which is the new selected counter
+        if (selectedCounter != newSelectedCounter)
+        {
+            selectedCounter = newSelectedCounter;
+
+            OnSelectedCounterChanged?.Invoke(this, new OnSelectedCounterChangedEventArgs { selectedCounter = selectedCounter });
         }
 
 
