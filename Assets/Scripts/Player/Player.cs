@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IKitchenObjectParent
 {
 
     // Applying the Singleton pattern to the Player class
@@ -26,19 +26,23 @@ public class Player : MonoBehaviour
     // Following the standards of C# we create a class for the args of the event
     public class OnSelectedCounterChangedEventArgs : EventArgs
     {
-        public ClearCounter selectedCounter;
+        public BaseCounter selectedCounter;
     }
 
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float rotateSpeed = 10f;
     [SerializeField] private GameInput gameInput;
+    [SerializeField] private Transform kitchenObjectHoldPoint;
+
 
     // Layer mask to check if the player can interact with the counter
     [SerializeField] private LayerMask counterLayerMask;
 
     private bool isWalking = false;
     private Vector3 lastMoveDirection;
-    private ClearCounter selectedCounter;
+    private BaseCounter selectedCounter;
+    private KitchenObject kitchenObject;
+
     private void Start()
     {
         gameInput.OnInteractAction += OnInteractAction;
@@ -48,7 +52,7 @@ public class Player : MonoBehaviour
     {
         if (selectedCounter != null)
         {
-            selectedCounter.Interact();
+            selectedCounter.Interact(this);
         }
 
 
@@ -87,10 +91,10 @@ public class Player : MonoBehaviour
         if (Physics.Raycast(playerPosition, lastMoveDirection, out RaycastHit raycastHit, interactionDistance, counterLayerMask))
         {
             // Check if the object has the ClearCounter component
-            if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
+            if (raycastHit.transform.TryGetComponent(out BaseCounter counter))
             {
                 // Has ClearCounter
-                SetSelectedCounter(clearCounter);
+                SetSelectedCounter(counter);
 
             }
             else
@@ -108,7 +112,7 @@ public class Player : MonoBehaviour
 
     }
 
-    private void SetSelectedCounter(ClearCounter newSelectedCounter)
+    private void SetSelectedCounter(BaseCounter newSelectedCounter)
     {
         // We are calling to all the subscribers that the selected Counter has changed
         // and also telling them which is the new selected counter
@@ -202,5 +206,25 @@ public class Player : MonoBehaviour
         return isWalking;
     }
 
+    public Transform GetHoldingPointObject()
+    {
+        return kitchenObjectHoldPoint;
+    }
+    public void SetKitchenObject(KitchenObject newKitchenObject)
+    {
+        kitchenObject = newKitchenObject;
+    }
+    public KitchenObject GetKitchenObject()
+    {
+        return kitchenObject;
+    }
 
+    public void ClearKitchenObject()
+    {
+        kitchenObject = null;
+    }
+    public bool HasKitchenObject()
+    {
+        return kitchenObject != null;
+    }
 }

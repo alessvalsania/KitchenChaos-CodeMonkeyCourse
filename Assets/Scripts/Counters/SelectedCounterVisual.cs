@@ -8,9 +8,9 @@ public class SelectedCounterVisual : MonoBehaviour
 
 
     // This is the counter itself, who's referencing himbself
-    [SerializeField] private ClearCounter selectedCounter;
+    [SerializeField] private BaseCounter selectedCounter;
     // This is the visual representation of the counter (material)
-    [SerializeField] private GameObject visualGameObject;
+    [SerializeField] private GameObject[] visualGameObjectArray;
 
     private void Start()
     {
@@ -33,11 +33,17 @@ public class SelectedCounterVisual : MonoBehaviour
 
     private void Show()
     {
-        visualGameObject.SetActive(true);
+        foreach (GameObject visualGameObject in visualGameObjectArray)
+        {
+            visualGameObject.SetActive(true);
+        }
     }
 
     private void Hide()
     {
-        visualGameObject.SetActive(false);
+        foreach (GameObject visualGameObject in visualGameObjectArray)
+        {
+            visualGameObject.SetActive(false);
+        }
     }
 }
